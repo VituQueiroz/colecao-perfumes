@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<title>Coleção de Perfumes</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+body { 
+    font-family: "Poppins", sans-serif; 
+    background: url("https://images.unsplash.com/photo-1485470733090-0aae1788d5af?fm=jpg&q=60&w=3000") no-repeat center center fixed; 
+    background-size: cover; 
+    backdrop-filter: blur(2px); 
+    color:#fff;
+}
+h1,h2,h5,p,label { color:#fff; }
+.glass-box { 
+    background: rgba(0,0,0,0.35); 
+    border: 1px solid rgba(255,255,255,0.15); 
+    border-radius: 16px; 
+    padding: 15px; 
+    box-shadow: 0 6px 25px rgba(0,0,0,0.5); 
+    backdrop-filter: blur(10px); 
+}
+.form-control { 
+    border: 1px solid #666 !important; 
+    background-color: rgba(0,0,0,0.3); 
+    color: #fff; 
+    font-size: 0.9rem;
+    padding: 6px 10px;
+}
+.form-control:focus { 
+    border-color: #aaa !important; 
+    box-shadow: 0 0 0 0.2rem rgba(200,200,200,0.2); 
+}
+.accordion-button { 
+    background: rgba(0,0,0,0.3) !important; 
+    color: #fff !important; 
+    border: none !important; 
+    font-size: 0.9rem;
+}
+.accordion-body { 
+    background: rgba(0,0,0,0.2); 
+    border-radius: 10px; 
+    padding: 8px 12px; 
+    font-size: 0.85rem;
+}
+
+.perfume-card .button-row {
+    display: flex;
+    flex-wrap: wrap;     /* permite quebrar a linha */
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.perfume-card .button-row .btn {
+    flex: 1 1 calc(50% - 6px); /* 2 botões por linha */
+    white-space: nowrap;
+}
+
+.card-wrap { perspective: 1000px; position: relative; }
+.perfume-card { 
+    background: rgba(0,0,0,0.25); 
+    border: 1px solid rgba(255,255,255,0.2); 
+    border-radius: 14px; 
+    padding: 12px; 
+    backdrop-filter: blur(6px); 
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .3s ease, background .3s ease; 
+    transform-origin: center; 
+    position: relative; 
+    font-size: 0.85rem;
+}
+.perfume-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 10px 35px rgba(0,0,0,0.65); 
+}
+.perfume-img { 
+    width: 90px; 
+    height: 90px; 
+    object-fit: cover; 
+    border-radius: 12px; 
+    border: 2px solid #fff; 
+    transition: transform .3s ease; 
+}
+.perfume-card:hover .perfume-img { transform: scale(1.05); }
+.star { 
+    color: #ffc107; 
+    cursor: pointer; 
+    font-size: 0.85rem; 
+}
+.star.inactive { color: #6c757d; }
+.badge-oc, .badge-nota { 
+    margin-right: 3px; 
+    margin-bottom: 3px; 
+    padding: 4px 8px; 
+    border-radius: 5px; 
+    font-size: 0.7rem; 
+}
+.badge-cat { 
+    background: #adb5bd !important; 
+    color: #000 !important; 
+    padding: 4px 8px; 
+    border-radius: 5px; 
+    font-size: 0.75rem;
+}
+.bg-brown { background:#8d6e63 !important; color:white !important; }
+.bg-yellow { background:#f7d700 !important; color:black !important; }
+.bg-pink { background:#ff4fa3 !important; color:white !important; }
+.bg-skyblue { background:#5bc0de !important; color:black !important; }
+.bg-red { background:#dc3545 !important; }
+.bg-orange { background:#fd7e14 !important; }
+.bg-cyan { background:#0dcaf0 !important; color:black !important; }
+.bg-green { background:#198754 !important; }
+.bg-purple { background:#6f42c1 !important; }
+.bg-darkgreen { background:#14532d !important; }
+.collapse-content { display: none; margin-top: 6px; font-size: 0.85rem; }
+.collapse-content.show { display: block; }
+.favorite { 
+    position: absolute; 
+    top: 8px; right: 8px; 
+    font-size: 1.4rem; 
+    cursor: pointer; 
+    z-index: 2; }
+.favorite:hover {
+    transform: scale(1.15);
+}
+.favorite i { transition: color 0.3s ease; }
+/* Estado normal */
+.favorite i.far {
+    color: white;
+}
+
+.favorite i.fas {
+    color: red;
+}
+
+/* Apenas cor vermelho ao passar o mouse se NÃO estiver favoritado */
+.favorite:not(.favorito) i.far:hover {
+    color: red !important;
+}
+
+
+</style>
+</head>
+<body>
+<div id="app" class="container py-3">
+<header class="text-center mb-3">
+<h1 style="font-size:1.8rem;">Minha Coleção de Perfumes</h1>
+</header>
+
+<div class="row g-3">
+  <!-- FORMULÁRIO MAIS FINO -->
+  <div class="col-md-3">
+    <div class="glass-box">
+      <h2 style="font-size:1.2rem;">{{ editIndex !== null ? "Editar Perfume" : "Cadastrar Perfume" }}</h2>
+      <input class="form-control mt-2" type="text" placeholder="Nome" v-model="nome">
+      <input class="form-control mt-2" type="text" placeholder="Marca" v-model="marca">
+      <input class="form-control mt-2" type="url" placeholder="Site fabricante" v-model="site">
+      <input class="form-control mt-2" type="url" placeholder="URL da imagem" v-model="imagem">
+      <img v-if="imagem" :src="imagem" class="img-fluid mt-2 rounded shadow" style="max-height:100px;">
+      <input class="form-control mt-2" type="number" placeholder="Volume (ml)" v-model="volume">
+      <input class="form-control mt-2" type="number" placeholder="Ano de lançamento" v-model="ano">
+      <input class="form-control mt-2" type="number" placeholder="Preço (R$)" v-model="preco">
+      <div class="accordion mt-3" id="accordionForm">
+        <div class="accordion-item bg-transparent">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" @click="toggleAba('oc')"> Ocasiões </button>
+          </h2>
+          <div :class="'accordion-collapse collapse ' + (abasAbertas.oc ? 'show' : '')">
+            <div class="accordion-body">
+              <div class="form-check" v-for="oc in opcoesOcasiões" :key="oc">
+                <input class="form-check-input" type="checkbox" :value="oc" v-model="ocasiões">
+                <label class="form-check-label">{{ oc }}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item bg-transparent mt-2">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" @click="toggleAba('pref')"> Preferências </button>
+          </h2>
+          <div :class="'accordion-collapse collapse ' + (abasAbertas.pref ? 'show' : '')">
+            <div class="accordion-body">
+              <select class="form-control mt-1" v-model="tempo">
+                <option disabled value="">Dia ou Noite?</option>
+                <option>Dia</option>
+                <option>Noite</option>
+              </select>
+              <select class="form-control mt-1" v-model="estacao">
+                <option disabled value="">Frio ou Calor?</option>
+                <option>Frio</option>
+                <option>Calor</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item bg-transparent mt-2">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" @click="toggleAba('notas')"> Notas Olfativas </button>
+          </h2>
+          <div :class="'accordion-collapse collapse ' + (abasAbertas.notas ? 'show' : '')">
+            <div class="accordion-body">
+              <div class="form-check" v-for="nota in opcoesNotasAromaticas" :key="nota">
+                <input class="form-check-input" type="checkbox" :value="nota" v-model="notasSelecionadas">
+                <label class="form-check-label">{{ nota }}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h5 class="mt-3">Categoria</h5>
+      <input class="form-control" type="text" v-model="categoria" placeholder="Digite uma categoria">
+      <button class="btn btn-primary w-100 mt-3" :disabled="!podeSalvar" @click="cadastrarPerfume">
+        {{ editIndex !== null ? "Salvar Alterações" : "Cadastrar Perfume" }}
+      </button>
+      <button class="btn btn-secondary w-100 mt-2" v-if="editIndex !== null" @click="cancelarEdicao">
+      Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- PERFUMES MAIS LARGOS (4 POR LINHA) -->
+  <div class="col-md-9">
+    <div class="glass-box">
+<div class="d-flex gap-2 mb-2 align-items-center">
+  <input class="form-control" type="text" placeholder="Buscar..." v-model="filtroGeral" style="font-size:0.85rem;">
+  
+  <select class="form-control w-auto" v-model="sortBy" style="font-size:0.85rem;">
+    <option value="none">Ordenar</option>
+    <option value="nome_az">Nome (A → Z)</option>
+    <option value="nome_za">Nome (Z → A)</option>
+    <option value="preco_cresc">Menor Preço</option>
+    <option value="preco_desc">Maior Preço</option>
+    <option value="nota_cresc">Menor Nota</option>
+    <option value="nota_desc">Maior Nota</option>
+  </select>
+  
+  <div class="form-check ms-2">
+    <input class="form-check-input" type="checkbox" id="favoritosOnly" v-model="somenteFavoritos">
+    <label class="form-check-label" for="favoritosOnly" style="color:#fff; font-size:0.85rem;">Favoritos</label>
+  </div>
+</div>
+<div class="mb-2" style="font-size:0.85rem; color:#fff;">
+  <strong>Total de perfumes:</strong> {{ listaFiltrada.length }} |
+  <strong>Valor da coleção:</strong> {{ valorTotal | reais }}
+</div>
+
+
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+        <div class="col" v-for="(perfume,index) in listaFiltradaSorted" :key="index">
+          <div class="card-wrap">
+            <div class="perfume-card" @click="toggleExpand(perfume)">
+              <div v-if="!perfume.expandido" class="favorite" @click.stop="toggleFavorito(perfume)">
+                <i :class="perfume.favorito ? 'fas fa-heart' : 'far fa-heart'"></i>
+              </div>
+              <div v-if="!perfume.expandido" class="text-center">
+                <img :src="perfume.imagem" class="perfume-img mb-2 shadow">
+                <h5>{{ perfume.nome }}</h5>
+                <p class="mb-1"><strong>{{ perfume.preco | reais }}</strong></p>
+                <p class="mb-0">
+                  <span v-for="n in 5" :key="n" class="fa-star star" :class="{'fas': n <= perfume.nota, 'far': n > perfume.nota}" @click.stop="setNotaPerfume(index,n)"></span>
+                </p>
+              </div>
+              <div class="collapse-content" :class="{'show': perfume.expandido}">
+                <a v-if="perfume.site" :href="perfume.site" target="_blank" class="btn btn-success btn-sm position-absolute top-0 end-0 mt-1 me-1" title="Comprar">
+                  <i class="fas fa-shopping-cart"></i>
+                </a>
+                <p><strong>Marca:</strong> {{ perfume.marca }}</p>
+                <p><strong>Volume:</strong> {{ perfume.volume }} ml</p>
+                <p><strong>Ano:</strong> {{ perfume.ano }}</p>
+                <p><strong>Dia/Noite:</strong> {{ perfume.tempo }}</p>
+                <p><strong>Estação:</strong> {{ perfume.estacao }}</p>
+                <p><strong>Ocasiões:</strong><br>
+                  <span v-for="oc in perfume.ocasiões" :key="oc" class="badge badge-oc" :class="'bg-' + badgeColorOc(oc)"> {{ oc }} </span>
+                </p>
+                <p class="mt-1"><strong>Notas Olfativas:</strong><br>
+                  <span v-for="nota in perfume.notasSelecionadas" :key="nota" class="badge badge-nota" :class="'bg-' + badgeColorNota(nota)"> {{ nota }} </span>
+                </p>
+                <p class="mt-1"><strong>Categoria:</strong><br> <span class="badge badge-cat">{{ perfume.categoria }}</span> </p>
+              </div>
+              <div class="button-row">
+                <button class="btn btn-warning btn-sm" @click.stop="alterar(index)">Editar</button>
+                <button class="btn btn-info btn-sm" @click.stop="duplicar(index)">Duplicar</button>
+                <button class="btn btn-danger btn-sm" @click.stop="excluir(index)">Excluir</button>
+            </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- row -->
+</div> <!-- container -->
+
+<script>
+new Vue({
+el:"#app",
+data:{
+somenteFavoritos: false, nome:'', marca:'', imagem:'', volume:'', ano:'', preco:'', ocasiões:[], tempo:'', estacao:'', notasSelecionadas:[], categoria:'', site:'', filtroGeral:'',
+opcoesOcasiões:["Dia a Dia","Profissional","Balada","Encontro","Faculdade","Academia","Casamento","Happy Hour"],
+opcoesNotasAromaticas:["Amadeirado","Cítrico","Doce","Fresco","Oriental","Especiado","Aquático / Marinho","Aromático","Frutado","Herbal"],
+listaPerfumes:[], abasAbertas:{ oc:false, pref:false, notas:false }, editIndex:null, notaTemp:0, sortBy:'none'
+},
+mounted(){
+const save = localStorage.getItem("perfumes");
+if(save) this.listaPerfumes = JSON.parse(save);
+},
+watch:{
+listaPerfumes:{ deep:true, handler(v){ localStorage.setItem("perfumes", JSON.stringify(v)); } }
+},
+computed:{
+  valorTotal() {
+  return this.listaFiltrada.reduce((total, p) => total + parseFloat(p.preco || 0), 0);
+},
+listaFiltrada() {
+  return this.listaPerfumes.filter(p => {
+    const atendeFiltro = p.nome.toLowerCase().includes(this.filtroGeral.toLowerCase()) || 
+                         (p.marca && p.marca.toLowerCase().includes(this.filtroGeral.toLowerCase()));
+    const atendeFavoritos = this.somenteFavoritos ? p.favorito : true;
+    return atendeFiltro && atendeFavoritos;
+  });
+},
+listaFiltradaSorted(){ const arr = this.listaFiltrada.slice(); switch(this.sortBy){ case 'nome_az': arr.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')); break; case 'nome_za': arr.sort((a,b)=>b.nome.localeCompare(a.nome,'pt-BR')); break; case 'preco_cresc': arr.sort((a,b)=>parseFloat(a.preco) - parseFloat(b.preco)); break; case 'preco_desc': arr.sort((a,b)=>parseFloat(b.preco) - parseFloat(a.preco)); break; case 'nota_cresc': arr.sort((a,b)=>a.nota - b.nota); break; case 'nota_desc': arr.sort((a,b)=>b.nota - a.nota); break; } return arr; },
+podeSalvar(){ return this.nome && this.marca && this.imagem && this.volume && this.ano && this.preco && this.ocasiões.length && this.notasSelecionadas.length && this.tempo && this.estacao && this.categoria && this.site; }
+},
+filters:{
+reais(v){ return "R$ "+parseFloat(v).toFixed(2).replace(".",","); }
+},
+methods: {
+  toggleAba(a){ 
+    this.abasAbertas[a] = !this.abasAbertas[a]; 
+  },
+
+  cadastrarPerfume(){
+    let favoritoAtual = false;
+    if(this.editIndex !== null) favoritoAtual = this.listaPerfumes[this.editIndex].favorito;
+
+    const perfume = { 
+      nome:this.nome, 
+      marca:this.marca, 
+      imagem:this.imagem, 
+      volume:this.volume, 
+      ano:this.ano, 
+      preco:this.preco, 
+      ocasiões:[...this.ocasiões], 
+      tempo:this.tempo, 
+      estacao:this.estacao, 
+      notasSelecionadas:[...this.notasSelecionadas], 
+      categoria:this.categoria, 
+      site:this.site, 
+      expandido:false, 
+      nota:this.editIndex !== null ? this.notaTemp : 0, 
+      favorito:favoritoAtual 
+    };
+
+    if(this.editIndex !== null){ 
+      // Salvar alterações
+      Vue.set(this.listaPerfumes, this.editIndex, perfume); 
+    } else { 
+      // Cadastrar novo
+      this.listaPerfumes.push(perfume); 
+    }
+
+    this.resetar();
+  },
+
+  alterar(i){
+    const p = this.listaPerfumes[i]; 
+    this.nome = p.nome; 
+    this.marca = p.marca; 
+    this.imagem = p.imagem; 
+    this.volume = p.volume; 
+    this.ano = p.ano; 
+    this.preco = p.preco; 
+    this.ocasiões = [...p.ocasiões]; 
+    this.tempo = p.tempo; 
+    this.estacao = p.estacao; 
+    this.notasSelecionadas = [...p.notasSelecionadas]; 
+    this.categoria = p.categoria; 
+    this.site = p.site; 
+    this.notaTemp = p.nota; 
+    this.editIndex = i;
+  },
+
+  duplicar(i){
+    const c = JSON.parse(JSON.stringify(this.listaPerfumes[i]));
+    c.expandido = false;
+    c.favorito = false; // opcional: duplicado começa não favoritado
+    this.listaPerfumes.push(c);
+
+    // preencher o formulário automaticamente com a duplicação
+    this.alterar(this.listaPerfumes.length - 1);
+  },
+
+  cancelarEdicao() {
+    this.resetar();
+  },
+
+  resetar() {
+    this.nome = '';
+    this.marca = '';
+    this.imagem = '';
+    this.volume = '';
+    this.ano = '';
+    this.preco = '';
+    this.ocasiões = [];
+    this.tempo = '';
+    this.estacao = '';
+    this.notasSelecionadas = [];
+    this.categoria = '';
+    this.site = '';
+    this.editIndex = null;
+    this.notaTemp = 0;
+    this.abasAbertas = { oc:false, pref:false, notas:false };
+  },
+
+  excluir(i){
+    if(confirm("Tem certeza que deseja excluir este perfume?")){
+      this.listaPerfumes.splice(i, 1);
+    }
+  },
+
+  toggleExpand(p){ 
+    const aberto = p.expandido; 
+    this.listaPerfumes.forEach(x => x.expandido = false); 
+    p.expandido = !aberto; 
+  },
+
+  setNotaPerfume(i,nota){ 
+    this.listaPerfumes[i].nota = nota; 
+    this.notaTemp = nota; 
+  },
+
+  toggleFavorito(perfume){ 
+    perfume.favorito = !perfume.favorito; 
+  },
+
+  badgeColorOc(o){ 
+    return { 
+      "Dia a Dia":"primary", "Profissional":"dark", "Balada":"purple", "Encontro":"red", 
+      "Faculdade":"green", "Academia":"orange", "Casamento":"yellow", "Happy Hour":"cyan" 
+    }[o] || "secondary"; 
+  },
+
+  badgeColorNota(n){ 
+    return { 
+      "Amadeirado":"brown", "Cítrico":"yellow", "Doce":"pink", "Fresco":"skyblue", 
+      "Oriental":"red", "Especiado":"orange", "Aquático / Marinho":"cyan", "Aromático":"green", 
+      "Frutado":"purple", "Herbal":"darkgreen" 
+    }[n] || "secondary"; 
+  }
+}
+
+});
+</script>
+</body>
+</html>
