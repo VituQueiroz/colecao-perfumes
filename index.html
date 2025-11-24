@@ -20,7 +20,7 @@ body {
     font-family: "Poppins", sans-serif; 
     background: url("https://images.unsplash.com/photo-1485470733090-0aae1788d5af?fm=jpg&q=60&w=1500") no-repeat center center;
     background-size: cover; 
-    background-attachment: scroll; /* evita problemas no mobile */
+    background-attachment: scroll;
     backdrop-filter: blur(2px); 
     color:#fff;
 }
@@ -33,7 +33,7 @@ h1,h2,h5,p,label { color:#fff; }
     background: rgba(0,0,0,0.35); 
     border: 1px solid rgba(255,255,255,0.15); 
     border-radius: 16px; 
-    padding: 12px;         /* reduzido para caber mais */
+    padding: 12px;
     box-shadow: 0 6px 25px rgba(0,0,0,0.5); 
     backdrop-filter: blur(10px); 
 }
@@ -66,24 +66,21 @@ h1,h2,h5,p,label { color:#fff; }
 }
 
 /* ===== CARDS ===== */
-
-/* Adaptação para mobile */
 .card-wrap { perspective: 1000px; position: relative; }
 
 .perfume-card { 
     background: rgba(0,0,0,0.25); 
     border: 1px solid rgba(255,255,255,0.2); 
     border-radius: 14px; 
-    padding: 10px;      /* reduzido */
+    padding: 10px; 
     backdrop-filter: blur(6px); 
     cursor: pointer;
     transition: transform .25s ease, box-shadow .3s ease, background .3s ease; 
     transform-origin: center;
     position: relative; 
-    font-size: 0.8rem;  /* menor para caber mais */
+    font-size: 0.8rem;
 }
 
-/* Hover apenas no PC */
 @media (hover:hover) {
     .perfume-card:hover { 
         transform: translateY(-4px); 
@@ -110,42 +107,25 @@ h1,h2,h5,p,label { color:#fff; }
     top: 8px; right: 8px; 
     font-size: 1.4rem; 
     cursor: pointer; 
-    z-index: 2; }
-.favorite:hover {
-    transform: scale(1.15);
+    z-index: 2;
 }
-.favorite i { transition: color 0.3s ease; }
-/* Estado normal */
-.favorite i.far {
-    color: white;
-}
-
-.favorite i.fas {
-    color: red;
-}
-
-/* Apenas cor vermelho ao passar o mouse se NÃO estiver favoritado */
-.favorite:not(.favorito) i.far:hover {
-    color: red !important;
-}
+.favorite:hover { transform: scale(1.15); }
+.favorite i.far { color: white; }
+.favorite i.fas { color: red; }
+.favorite:not(.favorito) i.far:hover { color: red !important; }
 
 /* ===== EXPANDIR ===== */
-.collapse-content {
-    display: none;
-    margin-top: 6px;
-}
-.collapse-content.show {
-    display: block;
-}
+.collapse-content { display: none; margin-top: 6px; }
+.collapse-content.show { display: block; }
 
 /* ===== BOTÕES ===== */
-.perfume-card .button-row {
+.button-row {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 10px;
 }
-.perfume-card .button-row .btn {
+.button-row .btn {
     flex: 1 1 calc(50% - 6px);
     white-space: nowrap;
 }
@@ -177,30 +157,30 @@ h1,h2,h5,p,label { color:#fff; }
 .bg-darkgreen { background:#14532d !important; }
 
 /* ===== ESTRELAS ===== */
-.star {
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.star.fas {
-    color: #ffc107 !important; /* amarelo */
-}
-
-.star.far {
-    color: #6c757d !important; /* cinza */
-}
+.star { cursor: pointer; font-size: 1rem; }
+.star.fas { color: #ffc107 !important; }
+.star.far { color: #6c757d !important; }
 
 @media (hover:hover) {
-    .star:hover {
-        transform: scale(1.15);
-        transition: 0.2s;
-    }
+    .star:hover { transform: scale(1.15); transition: 0.2s; }
 }
-
 </style>
 </head>
 
 <body>
+<div id="app">
+
+<nav class="navbar navbar-dark bg-dark mb-3 rounded shadow p-2">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" @click="tela='grid'">
+      <i class="fa fa-th"></i> Lista
+    </a>
+    <a class="navbar-brand" href="#" @click="tela='cadastro'">
+      <i class="fa fa-plus"></i> Cadastro
+    </a>
+  </div>
+</nav>
+
 <div id="app" class="container py-3">
 
 <header class="text-center mb-3">
@@ -209,105 +189,111 @@ h1,h2,h5,p,label { color:#fff; }
 
 <div class="row g-3">
 
-<!-- FORMULÁRIO ===== -->
-<div class="col-12 col-md-3">
-  <div class="glass-box">
-    <h2 style="font-size:1.1rem;">{{ editIndex !== null ? "Editar Perfume" : "Cadastrar Perfume" }}</h2>
+<!-- ========================= -->
+<!--   FORMULÁRIO CENTRALIZADO -->
+<!-- ========================= -->
+<div v-if="tela==='cadastro'" class="d-flex justify-content-center w-100">
+  <div class="col-12 col-md-3">
+    <div class="glass-box">
 
-    <input class="form-control mt-2" placeholder="Nome" v-model="nome">
-    <input class="form-control mt-2" placeholder="Marca" v-model="marca">
-    <input class="form-control mt-2" placeholder="Site fabricante" v-model="site">
-    <input class="form-control mt-2" placeholder="URL da imagem" v-model="imagem">
-    <img v-if="imagem" :src="imagem" class="img-fluid mt-2 rounded shadow" style="max-height:90px;">
+      <h2 style="font-size:1.1rem;">{{ editIndex !== null ? "Editar Perfume" : "Cadastrar Perfume" }}</h2>
 
-    <input class="form-control mt-2" type="number" placeholder="Volume (ml)" v-model="volume">
-    <input class="form-control mt-2" type="number" placeholder="Ano" v-model="ano">
-    <input class="form-control mt-2" type="number" placeholder="Preço (R$)" v-model="preco">
+      <input class="form-control mt-2" placeholder="Nome" v-model="nome">
+      <input class="form-control mt-2" placeholder="Marca" v-model="marca">
+      <input class="form-control mt-2" placeholder="Site fabricante" v-model="site">
+      <input class="form-control mt-2" placeholder="URL da imagem" v-model="imagem">
+      <img v-if="imagem" :src="imagem" class="img-fluid mt-2 rounded shadow" style="max-height:90px;">
 
-    <!-- ACCORDIONS -->
-    <div class="accordion mt-3" id="accordionForm">
+      <input class="form-control mt-2" type="number" placeholder="Volume (ml)" v-model="volume">
+      <input class="form-control mt-2" type="number" placeholder="Ano" v-model="ano">
+      <input class="form-control mt-2" type="number" placeholder="Preço (R$)" v-model="preco">
 
-      <div class="accordion-item bg-transparent">
-        <h2 class="accordion-header">
-          <button class="accordion-button" type="button" @click="toggleAba('oc')">Ocasiões</button>
-        </h2>
-        <div :class="'accordion-collapse collapse ' + (abasAbertas.oc ? 'show':'')">
-          <div class="accordion-body">
-            <div v-for="oc in opcoesOcasiões" :key="oc">
-              <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" :value="oc" v-model="ocasiões">
-                {{ oc }}
-              </label>
+      <!-- ACCORDIONS -->
+      <div class="accordion mt-3" id="accordionForm">
+
+        <div class="accordion-item bg-transparent">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" @click="toggleAba('oc')">Ocasiões</button>
+          </h2>
+          <div :class="'accordion-collapse collapse ' + (abasAbertas.oc ? 'show':'')">
+            <div class="accordion-body">
+              <div v-for="oc in opcoesOcasiões" :key="oc">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" :value="oc" v-model="ocasiões">
+                  {{ oc }}
+                </label>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="accordion-item bg-transparent mt-2">
-        <h2 class="accordion-header">
-          <button class="accordion-button" type="button" @click="toggleAba('pref')">Preferências</button>
-        </h2>
-        <div :class="'accordion-collapse collapse ' + (abasAbertas.pref ? 'show':'' )">
-          <div class="accordion-body">
-            <select class="form-control mt-1" v-model="tempo">
-              <option disabled value="">Dia ou Noite?</option>
-              <option>Dia</option>
-              <option>Noite</option>
-            </select>
-            <select class="form-control mt-1" v-model="estacao">
-              <option disabled value="">Frio ou Calor?</option>
-              <option>Frio</option>
-              <option>Calor</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="accordion-item bg-transparent mt-2">
-        <h2 class="accordion-header">
-          <button class="accordion-button" type="button" @click="toggleAba('notas')">Notas Olfativas</button>
-        </h2>
-        <div :class="'accordion-collapse collapse ' + (abasAbertas.notas ? 'show':'' )">
-          <div class="accordion-body">
-            <div v-for="nota in opcoesNotasAromaticas" :key="nota">
-              <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" :value="nota" v-model="notasSelecionadas">
-                {{ nota }}
-              </label>
+        <div class="accordion-item bg-transparent mt-2">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" @click="toggleAba('pref')">Preferências</button>
+          </h2>
+          <div :class="'accordion-collapse collapse ' + (abasAbertas.pref ? 'show':'' )">
+            <div class="accordion-body">
+              <select class="form-control mt-1" v-model="tempo">
+                <option disabled value="">Dia ou Noite?</option>
+                <option>Dia</option>
+                <option>Noite</option>
+              </select>
+              <select class="form-control mt-1" v-model="estacao">
+                <option disabled value="">Frio ou Calor?</option>
+                <option>Frio</option>
+                <option>Calor</option>
+              </select>
             </div>
           </div>
         </div>
+
+        <div class="accordion-item bg-transparent mt-2">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" @click="toggleAba('notas')">Notas Olfativas</button>
+          </h2>
+          <div :class="'accordion-collapse collapse ' + (abasAbertas.notas ? 'show':'' )">
+            <div class="accordion-body">
+              <div v-for="nota in opcoesNotasAromaticas" :key="nota">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" :value="nota" v-model="notasSelecionadas">
+                  {{ nota }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <h5 class="mt-3">Categoria</h5>
+      <input class="form-control" v-model="categoria">
+
+      <button class="btn btn-primary w-100 mt-3" :disabled="!podeSalvar" @click="cadastrarPerfume">
+        {{ editIndex !== null ? "Salvar Alterações" : "Cadastrar Perfume" }}
+      </button>
+
+      <button class="btn btn-secondary w-100 mt-2" v-if="editIndex !== null" @click="cancelarEdicao">
+        Cancelar
+      </button>
+
+      <button class="btn btn-success w-100 mt-2" @click="exportarJSON">
+        Exportar Coleção
+      </button>
+
+      <input type="file" id="importarArquivo" style="display:none" @change="importarJSON">
+
+      <button class="btn btn-warning w-100 mt-2" @click="abrirImportacao">
+        Importar Coleção
+      </button>
 
     </div>
-
-    <h5 class="mt-3">Categoria</h5>
-    <input class="form-control" v-model="categoria">
-
-    <button class="btn btn-primary w-100 mt-3" :disabled="!podeSalvar" @click="cadastrarPerfume">
-      {{ editIndex !== null ? "Salvar Alterações" : "Cadastrar Perfume" }}
-    </button>
-
-    <button class="btn btn-secondary w-100 mt-2" v-if="editIndex !== null" @click="cancelarEdicao">
-      Cancelar
-    </button>
-
-    <button class="btn btn-success w-100 mt-2" @click="exportarJSON">
-      Exportar Coleção
-    </button>
-
-    <input type="file" id="importarArquivo" style="display:none" @change="importarJSON">
-
-    <button class="btn btn-warning w-100 mt-2" @click="abrirImportacao">
-      Importar Coleção
-    </button>
-
-
   </div>
 </div>
 
-
-<!-- LISTA ===== -->
+<!-- ============================= -->
+<!--     GRID CENTRALIZADO        -->
+<!-- ============================= -->
+<div v-if="tela==='grid'" class="d-flex justify-content-center w-100">
 <div class="col-12 col-md-9">
   <div class="glass-box">
 
@@ -335,7 +321,7 @@ h1,h2,h5,p,label { color:#fff; }
       <strong>Valor:</strong> {{ valorTotal | reais }}
     </div>
 
-    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 justify-content-center">
 
       <div class="col" v-for="(perfume,index) in listaFiltradaSorted" :key="index">
         <div class="card-wrap">
@@ -353,7 +339,7 @@ h1,h2,h5,p,label { color:#fff; }
                 <span v-for="n in 5" :key="n"
                   class="fa-star star"
                   :class="{'fas': n <= perfume.nota, 'far': n > perfume.nota}"
-                  @click.stop="setNotaPerfume(index,n)">
+                  @click.stop="setNotaPerfume(perfume,n)">
                 </span>
               </p>
             </div>
@@ -396,15 +382,15 @@ h1,h2,h5,p,label { color:#fff; }
         </div>
       </div>
 
-    </div> <!-- row -->
+    </div>
   </div>
+</div>
 </div>
 
 </div> <!-- row -->
 </div> <!-- container -->
 
 <script>
-/* === MESMO JS DO SEU ARQUIVO, NADA FOI ALTERADO === */
 new Vue({
   el:"#app",
   data:{
@@ -417,6 +403,7 @@ new Vue({
     listaPerfumes:[],
     abasAbertas:{ oc:false, pref:false, notas:false },
     editIndex:null,
+    tela: 'grid',
     notaTemp:0,
     sortBy:'none'
   },
@@ -461,29 +448,50 @@ new Vue({
   methods:{
   
     toggleAba(a){ this.abasAbertas[a]=!this.abasAbertas[a]; },
-    cadastrarPerfume(){
-      let fav=false;
-      if(this.editIndex!==null) fav=this.listaPerfumes[this.editIndex].favorito;
-      const perfume={
-        nome:this.nome,marca:this.marca,imagem:this.imagem,volume:this.volume,
-        ano:this.ano,preco:this.preco,ocasiões:[...this.ocasiões],
-        tempo:this.tempo,estacao:this.estacao,notasSelecionadas:[...this.notasSelecionadas],
-        categoria:this.categoria,site:this.site,expandido:false,
-        nota:this.editIndex!==null? this.notaTemp:0,
-        favorito:fav
-      };
-      if(this.editIndex!==null) Vue.set(this.listaPerfumes,this.editIndex,perfume);
-      else this.listaPerfumes.push(perfume);
-      this.resetar();
-    },
-    abrirImportacao() {
-    document.getElementById("importarArquivo").click();
-    },
+
+cadastrarPerfume() {
+  let fav = false;
+
+  if (this.editIndex !== null)
+    fav = this.listaPerfumes[this.editIndex].favorito;
+
+  const perfume = {
+    nome: this.nome,
+    marca: this.marca,
+    imagem: this.imagem,
+    volume: this.volume,
+    ano: this.ano,
+    preco: this.preco,
+    ocasiões: [...this.ocasiões],
+    tempo: this.tempo,
+    estacao: this.estacao,
+    notasSelecionadas: [...this.notasSelecionadas],
+    categoria: this.categoria,
+    site: this.site,
+    expandido: false,
+    nota: this.editIndex !== null ? this.notaTemp : 0,
+    favorito: fav
+  };
+
+  if (this.editIndex !== null)
+    Vue.set(this.listaPerfumes, this.editIndex, perfume);
+  else
+    this.listaPerfumes.push(perfume);
+
+  this.resetar();
+  this.tela = 'grid';
+},
+
+abrirImportacao() {
+  document.getElementById("importarArquivo").click();
+},
+
 alterar(perfume) {
   const indexReal = this.listaPerfumes.indexOf(perfume);
 
   const p = this.listaPerfumes[indexReal];
 
+  this.tela = 'cadastro';
   this.nome = p.nome;
   this.marca = p.marca;
   this.imagem = p.imagem;
@@ -513,15 +521,24 @@ duplicar(perfume) {
   this.alterar(clone);
 },
 
+cancelarEdicao(){
+   this.resetar(); 
+   this.tela = 'grid';
+},
 
-    cancelarEdicao(){ this.resetar(); },
-    resetar(){
-      this.nome=this.marca=this.imagem=this.volume=this.ano=this.preco='';
-      this.ocasiões=[]; this.tempo=''; this.estacao='';
-      this.notasSelecionadas=[]; this.categoria=''; this.site='';
-      this.editIndex=null; this.notaTemp=0;
-      this.abasAbertas={oc:false,pref:false,notas:false};
-    },
+resetar(){
+  this.nome=this.marca=this.imagem=this.volume=this.ano=this.preco='';
+  this.ocasiões=[]; 
+  this.tempo=''; 
+  this.estacao='';
+  this.notasSelecionadas=[]; 
+  this.categoria=''; 
+  this.site='';
+  this.editIndex=null; 
+  this.notaTemp=0;
+  this.abasAbertas={oc:false,pref:false,notas:false};
+},
+
 excluir(perfume) {
   if (!confirm("Tem certeza que deseja excluir este perfume?")) return;
 
@@ -529,21 +546,32 @@ excluir(perfume) {
   this.listaPerfumes.splice(indexReal, 1);
 },
 
-    toggleExpand(p){
-      const aberto=p.expandido;
-      this.listaPerfumes.forEach(x=>x.expandido=false);
-      p.expandido=!aberto;
-    },
-    setNotaPerfume(i,n){ this.listaPerfumes[i].nota=n; this.notaTemp=n; },
-    toggleFavorito(p){ p.favorito=!p.favorito; },
-    badgeColorOc(o){
-      return {
-        "Dia a Dia":"primary","Profissional":"dark","Balada":"purple",
-        "Encontro":"red","Faculdade":"green","Academia":"orange",
-        "Casamento":"yellow","Happy Hour":"cyan"
-      }[o] || "secondary";
-    },
-    exportarJSON() {
+toggleExpand(p){
+  const aberto=p.expandido;
+  this.listaPerfumes.forEach(x=>x.expandido=false);
+  p.expandido=!aberto;
+},
+
+setNotaPerfume(perfume, n) {
+  const indexReal = this.listaPerfumes.indexOf(perfume);
+  if (indexReal !== -1) {
+    this.listaPerfumes[indexReal].nota = n;
+    this.notaTemp = n;
+  }
+},
+
+
+toggleFavorito(p){ p.favorito=!p.favorito; },
+
+badgeColorOc(o){
+  return {
+    "Dia a Dia":"primary","Profissional":"dark","Balada":"purple",
+    "Encontro":"red","Faculdade":"green","Academia":"orange",
+    "Casamento":"yellow","Happy Hour":"cyan"
+  }[o] || "secondary";
+},
+
+exportarJSON() {
 
   if (!confirm("Deseja realmente exportar toda a coleção de perfumes?")) {
     return;
@@ -589,14 +617,15 @@ importarJSON(event) {
   reader.readAsText(file);
 },
 
-    badgeColorNota(n){
-      return{
-        "Amadeirado":"brown","Cítrico":"yellow","Doce":"pink",
-        "Fresco":"skyblue","Oriental":"red","Especiado":"orange",
-        "Aquático / Marinho":"cyan","Aromático":"green",
-        "Frutado":"purple","Herbal":"darkgreen"
-      }[n] || "secondary";
-    }
+badgeColorNota(n){
+  return{
+    "Amadeirado":"brown","Cítrico":"yellow","Doce":"pink",
+    "Fresco":"skyblue","Oriental":"red","Especiado":"orange",
+    "Aquático / Marinho":"cyan","Aromático":"green",
+    "Frutado":"purple","Herbal":"darkgreen"
+  }[n] || "secondary";
+}
+
   }
 });
 </script>
