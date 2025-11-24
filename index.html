@@ -139,10 +139,15 @@ h1,h2,h5,p,label { color:#fff; }
     font-size: 0.65rem;
 }
 .badge-cat {
-    background: #adb5bd !important;
-    color: #000 !important;
-    font-size: 0.7rem;
+    margin-right: 3px;
+    margin-bottom: 3px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.65rem;
+    white-space: normal; /* permite quebra de linha */
+    display: inline-block; /* mantém o estilo de badge */
 }
+
 
 /* CORES */
 .bg-brown { background:#8d6e63 !important; color:white !important; }
@@ -334,8 +339,8 @@ h1,h2,h5,p,label { color:#fff; }
 
       </div>
 
-      <h5 class="mt-3">Categoria</h5>
-      <input class="form-control" v-model="categoria">
+      <h5 class="mt-3">Extras</h5>
+      <input class="form-control" v-model="extras">
 
       <button class="btn btn-primary w-100 mt-3" :disabled="!podeSalvar" @click="cadastrarPerfume">
         {{ editIndex !== null ? "Salvar Alterações" : "Cadastrar Perfume" }}
@@ -439,8 +444,8 @@ h1,h2,h5,p,label { color:#fff; }
                 {{ nota }}</span>
               </p>
 
-              <p><strong>Categoria:</strong><br>
-                <span class="badge badge-cat">{{ perfume.categoria }}</span>
+              <p><strong>Extras:</strong><br>
+                <span class="badge badge-cat">{{ perfume.extras }}</span>
               </p>
             </div>
 
@@ -469,7 +474,7 @@ new Vue({
     somenteFavoritos:false,
     nome:'', marca:'', imagem:'', volume:'', ano:'', preco:'',
     ocasiões:[], tempo:'', estacao:'', notasSelecionadas:[],
-    categoria:'', site:'', filtroGeral:'',
+    extras:'', site:'', filtroGeral:'',
     opcoesOcasiões:["Dia a Dia","Profissional","Balada","Encontro","Faculdade","Academia","Casamento","Happy Hour"],
     opcoesNotasAromaticas:["Amadeirado","Cítrico","Doce","Fresco","Oriental","Especiado","Aquático / Marinho","Aromático","Frutado","Herbal"],
     listaPerfumes:[],
@@ -511,12 +516,12 @@ new Vue({
       return this.nome && this.marca && this.imagem && this.volume &&
              this.ano && this.preco && this.ocasiões.length &&
              this.notasSelecionadas.length && this.tempo &&
-             this.estacao && this.categoria && this.site;
+             this.estacao && this.site;
     },
     temAlgoNoFormulario() {
   return this.nome || this.marca || this.imagem || this.volume || this.ano ||
          this.preco || this.ocasiões.length || this.notasSelecionadas.length ||
-         this.tempo || this.estacao || this.categoria || this.site;
+         this.tempo || this.estacao || this.extras || this.site;
 }
 
   },
@@ -544,7 +549,7 @@ cadastrarPerfume() {
     tempo: this.tempo,
     estacao: this.estacao,
     notasSelecionadas: [...this.notasSelecionadas],
-    categoria: this.categoria,
+    extras: this.extras,
     site: this.site,
     expandido: false,
     nota: this.editIndex !== null ? this.notaTemp : 0,
@@ -580,7 +585,7 @@ alterar(perfume) {
   this.tempo = p.tempo;
   this.estacao = p.estacao;
   this.notasSelecionadas = [...p.notasSelecionadas];
-  this.categoria = p.categoria;
+  this.extras = p.extras;
   this.site = p.site;
 
   this.notaTemp = p.nota;
@@ -643,7 +648,7 @@ resetar(){
   this.tempo=''; 
   this.estacao='';
   this.notasSelecionadas=[]; 
-  this.categoria=''; 
+  this.extras=''; 
   this.site='';
   this.editIndex=null; 
   this.notaTemp=0;
