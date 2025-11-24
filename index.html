@@ -514,21 +514,19 @@ new Vue({
     window.addEventListener("keydown", this.teclasForm);
   },
   watch:{
-    watch:{
-  listaPerfumes:{
-    deep:true,
-    handler(v){
-      localStorage.setItem("perfumes", JSON.stringify(v));
-    }
-  },
+    listaPerfumes:{
+    deep:true,
+    handler(v){
+      // ESTE É O COMANDO QUE SALVA NO NAVEGADOR
+      localStorage.setItem("perfumes", JSON.stringify(v));
+    }
+  },
 
-  tela(newVal) {
-    if (newVal === 'grid') {
-      this.resetar();
-    }
-  }
-},
-
+  tela(newVal) {
+    if (newVal === 'grid') {
+      this.resetar();
+    }
+  },
   },
   computed:{
     valorTotal(){ return this.listaFiltrada.reduce((t,p)=>t+parseFloat(p.preco||0),0); },
