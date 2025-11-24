@@ -164,6 +164,24 @@ h1,h2,h5,p,label { color:#fff; }
 @media (hover:hover) {
     .star:hover { transform: scale(1.15); transition: 0.2s; }
 }
+.upload-area {
+  text-align: center;
+  color: #fff;
+}
+
+.upload-box {
+  padding: 20px;
+  border: 2px dashed rgba(255,255,255,0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.upload-box:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.8);
+}
+
 </style>
 </head>
 
@@ -201,8 +219,35 @@ h1,h2,h5,p,label { color:#fff; }
       <input class="form-control mt-2" placeholder="Nome" v-model="nome">
       <input class="form-control mt-2" placeholder="Marca" v-model="marca">
       <input class="form-control mt-2" placeholder="Site fabricante" v-model="site">
-      <input class="form-control mt-2" placeholder="URL da imagem" v-model="imagem">
-      <img v-if="imagem" :src="imagem" class="img-fluid mt-2 rounded shadow" style="max-height:90px;">
+<!-- ÁREA DE UPLOAD -->
+<div class="upload-area mt-2"
+     @dragover.prevent
+     @drop.prevent="soltarImagem"
+     @paste="colarImagem">
+
+  <p class="mb-1" style="font-size:0.8rem;">Arraste a imagem aqui, clique para escolher ou use CTRL+V</p>
+
+  <input type="file" accept="image/*" class="d-none" ref="fileInput" @change="carregarImagem">
+  
+  <div class="upload-box" @click="$refs.fileInput.click()">
+    <i class="fa fa-cloud-upload fa-2x mb-2"></i>
+    <p>Clique ou solte a imagem aqui</p>
+  </div>
+</div>
+
+<!-- Pré-visualização com ícone de remover -->
+<div v-if="imagem" class="position-relative d-inline-block mt-2">
+  <img :src="imagem" class="img-fluid rounded shadow" style="max-height:120px;">
+  
+  <!-- Ícone para remover -->
+  <span @click="imagem=''" 
+        style="position:absolute; top:0; right:0; background:rgba(0,0,0,0.6); 
+               border-radius:50%; padding:2px 6px; cursor:pointer; color:white;">
+    <i class="fas fa-times"></i>
+  </span>
+</div>
+
+
 
       <input class="form-control mt-2" type="number" placeholder="Volume (ml)" v-model="volume">
       <input class="form-control mt-2" type="number" placeholder="Ano" v-model="ano">
@@ -296,9 +341,12 @@ h1,h2,h5,p,label { color:#fff; }
         {{ editIndex !== null ? "Salvar Alterações" : "Cadastrar Perfume" }}
       </button>
 
-      <button class="btn btn-secondary w-100 mt-2" v-if="editIndex !== null" @click="cancelarEdicao">
+      <button class="btn btn-secondary w-100 mt-2" 
+        v-if="temAlgoNoFormulario" 
+        @click="cancelarEdicao">
         Cancelar
       </button>
+
 
       <button class="btn btn-success w-100 mt-2" @click="exportarJSON">
         Exportar Coleção
@@ -464,7 +512,13 @@ new Vue({
              this.ano && this.preco && this.ocasiões.length &&
              this.notasSelecionadas.length && this.tempo &&
              this.estacao && this.categoria && this.site;
-    }
+    },
+    temAlgoNoFormulario() {
+  return this.nome || this.marca || this.imagem || this.volume || this.ano ||
+         this.preco || this.ocasiões.length || this.notasSelecionadas.length ||
+         this.tempo || this.estacao || this.categoria || this.site;
+}
+
   },
   filters:{
     reais(v){ return "R$ "+parseFloat(v).toFixed(2).replace(".",","); }
@@ -531,6 +585,39 @@ alterar(perfume) {
 
   this.notaTemp = p.nota;
   this.editIndex = indexReal;
+},
+// Carregar via input file
+carregarImagem(event) {
+  const file = event.target.files[0];
+  if (file) this.lerArquivo(file);
+},
+
+// Soltar arquivo (drag and drop)
+soltarImagem(event) {
+  const file = event.dataTransfer.files[0];
+  if (file) this.lerArquivo(file);
+},
+
+// Colar imagem (CTRL+V)
+colarImagem(event) {
+  const items = event.clipboardData.items;
+
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.includes("image")) {
+      const file = items[i].getAsFile();
+      this.lerArquivo(file);
+      break;
+    }
+  }
+},
+
+// Lê qualquer imagem e converte para Base64
+lerArquivo(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    this.imagem = e.target.result; // Base64
+  };
+  reader.readAsDataURL(file);
 },
 
 duplicar(perfume) {
