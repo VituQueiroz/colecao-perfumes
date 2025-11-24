@@ -13,7 +13,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="icon" type="image/png" href="https://icons.iconarchive.com/icons/iconarchive/mothers-day/48/Perfume-Bottle-icon.png">
 
-
 <style>
 
 /* ===== FUNDO OTIMIZADO PARA CELULAR ===== */
@@ -481,7 +480,10 @@ new Vue({
     document.getElementById("importarArquivo").click();
     },
     alterar(i){
-      const p=this.listaPerfumes[i];
+      const perfumeExibido = this.listaFiltradaSorted[i];
+      const indexReal = this.listaPerfumes.indexOf(perfumeExibido);
+
+      const p = this.listaPerfumes[indexReal];
       this.nome=p.nome; this.marca=p.marca; this.imagem=p.imagem;
       this.volume=p.volume; this.ano=p.ano; this.preco=p.preco;
       this.ocasiões=[...p.ocasiões]; this.tempo=p.tempo;
@@ -489,12 +491,25 @@ new Vue({
       this.categoria=p.categoria; this.site=p.site;
       this.notaTemp=p.nota; this.editIndex=i;
     },
-    duplicar(i){
-      const c=JSON.parse(JSON.stringify(this.listaPerfumes[i]));
-      c.expandido=false; c.favorito=false;
-      this.listaPerfumes.push(c);
-      this.alterar(this.listaPerfumes.length-1);
-    },
+duplicar(i) {
+  // perfume exibido na lista filtrada/ordenada
+  const perfumeExibido = this.listaFiltradaSorted[i];
+
+  // pegar o índice REAL dentro da lista principal
+  const indexReal = this.listaPerfumes.indexOf(perfumeExibido);
+
+  // clonar o perfume
+  const clone = JSON.parse(JSON.stringify(this.listaPerfumes[indexReal]));
+  clone.expandido = false;
+  clone.favorito = false;
+
+  // inserir o clone no fim da lista real
+  this.listaPerfumes.push(clone);
+
+  // abrir a edição do novo perfume
+  this.alterar(this.listaPerfumes.length - 1);
+},
+
     cancelarEdicao(){ this.resetar(); },
     resetar(){
       this.nome=this.marca=this.imagem=this.volume=this.ano=this.preco='';
