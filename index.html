@@ -387,9 +387,9 @@ h1,h2,h5,p,label { color:#fff; }
             </div>
 
             <div class="button-row">
-              <button class="btn btn-warning btn-sm" @click.stop="alterar(index)">Editar</button>
-              <button class="btn btn-info btn-sm" @click.stop="duplicar(index)">Duplicar</button>
-              <button class="btn btn-danger btn-sm" @click.stop="excluir(index)">Excluir</button>
+              <button class="btn btn-info btn-sm" @click.stop="duplicar(perfume)">Duplicar</button>
+              <button class="btn btn-danger btn-sm" @click.stop="excluir(perfume)">Excluir</button>
+              <button class="btn btn-warning btn-sm" @click.stop="alterar(perfume)">Editar</button>
             </div>
 
           </div>
@@ -479,36 +479,40 @@ new Vue({
     abrirImportacao() {
     document.getElementById("importarArquivo").click();
     },
-    alterar(i){
-      const perfumeExibido = this.listaFiltradaSorted[i];
-      const indexReal = this.listaPerfumes.indexOf(perfumeExibido);
+alterar(perfume) {
+  const indexReal = this.listaPerfumes.indexOf(perfume);
 
-      const p = this.listaPerfumes[indexReal];
-      this.nome=p.nome; this.marca=p.marca; this.imagem=p.imagem;
-      this.volume=p.volume; this.ano=p.ano; this.preco=p.preco;
-      this.ocasiões=[...p.ocasiões]; this.tempo=p.tempo;
-      this.estacao=p.estacao; this.notasSelecionadas=[...p.notasSelecionadas];
-      this.categoria=p.categoria; this.site=p.site;
-      this.notaTemp=p.nota; this.editIndex=i;
-    },
-duplicar(i) {
-  // perfume exibido na lista filtrada/ordenada
-  const perfumeExibido = this.listaFiltradaSorted[i];
+  const p = this.listaPerfumes[indexReal];
 
-  // pegar o índice REAL dentro da lista principal
-  const indexReal = this.listaPerfumes.indexOf(perfumeExibido);
+  this.nome = p.nome;
+  this.marca = p.marca;
+  this.imagem = p.imagem;
+  this.volume = p.volume;
+  this.ano = p.ano;
+  this.preco = p.preco;
+  this.ocasiões = [...p.ocasiões];
+  this.tempo = p.tempo;
+  this.estacao = p.estacao;
+  this.notasSelecionadas = [...p.notasSelecionadas];
+  this.categoria = p.categoria;
+  this.site = p.site;
 
-  // clonar o perfume
+  this.notaTemp = p.nota;
+  this.editIndex = indexReal;
+},
+
+duplicar(perfume) {
+  const indexReal = this.listaPerfumes.indexOf(perfume);
+
   const clone = JSON.parse(JSON.stringify(this.listaPerfumes[indexReal]));
   clone.expandido = false;
   clone.favorito = false;
 
-  // inserir o clone no fim da lista real
   this.listaPerfumes.push(clone);
 
-  // abrir a edição do novo perfume
-  this.alterar(this.listaPerfumes.length - 1);
+  this.alterar(clone);
 },
+
 
     cancelarEdicao(){ this.resetar(); },
     resetar(){
@@ -518,11 +522,13 @@ duplicar(i) {
       this.editIndex=null; this.notaTemp=0;
       this.abasAbertas={oc:false,pref:false,notas:false};
     },
-    excluir(i){
-      if(confirm("Tem certeza que deseja excluir este perfume?")){
-        this.listaPerfumes.splice(i,1);
-      }
-    },
+excluir(perfume) {
+  if (!confirm("Tem certeza que deseja excluir este perfume?")) return;
+
+  const indexReal = this.listaPerfumes.indexOf(perfume);
+  this.listaPerfumes.splice(indexReal, 1);
+},
+
     toggleExpand(p){
       const aberto=p.expandido;
       this.listaPerfumes.forEach(x=>x.expandido=false);
