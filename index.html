@@ -211,21 +211,33 @@ h1,h2,h5,p,label { color:#fff; }
       <!-- ACCORDIONS -->
       <div class="accordion mt-3" id="accordionForm">
 
-        <div class="accordion-item bg-transparent">
-          <h2 class="accordion-header">
-            <button class="accordion-button" type="button" @click="toggleAba('oc')">Ocasiões</button>
-          </h2>
-          <div :class="'accordion-collapse collapse ' + (abasAbertas.oc ? 'show':'')">
-            <div class="accordion-body">
-              <div v-for="oc in opcoesOcasiões" :key="oc">
-                <label class="form-check-label">
-                  <input class="form-check-input" type="checkbox" :value="oc" v-model="ocasiões">
-                  {{ oc }}
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
+<div class="accordion-item bg-transparent">
+  <h2 class="accordion-header">
+    <button class="accordion-button" type="button" @click="toggleAba('oc')">
+      Ocasiões
+    </button>
+  </h2>
+
+  <div :class="'accordion-collapse collapse ' + (abasAbertas.oc ? 'show' : '')">
+    <div class="accordion-body">
+      
+      <div v-for="oc in opcoesOcasiões" :key="oc" class="form-check">
+        <input 
+          class="form-check-input"
+          type="checkbox"
+          :id="'oc-' + oc"
+          :value="oc"
+          v-model="ocasiões"
+        >
+        <label class="form-check-label" :for="'oc-' + oc">
+          {{ oc }}
+        </label>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
         <div class="accordion-item bg-transparent mt-2">
           <h2 class="accordion-header">
@@ -247,21 +259,33 @@ h1,h2,h5,p,label { color:#fff; }
           </div>
         </div>
 
-        <div class="accordion-item bg-transparent mt-2">
-          <h2 class="accordion-header">
-            <button class="accordion-button" type="button" @click="toggleAba('notas')">Notas Olfativas</button>
-          </h2>
-          <div :class="'accordion-collapse collapse ' + (abasAbertas.notas ? 'show':'' )">
-            <div class="accordion-body">
-              <div v-for="nota in opcoesNotasAromaticas" :key="nota">
-                <label class="form-check-label">
-                  <input class="form-check-input" type="checkbox" :value="nota" v-model="notasSelecionadas">
-                  {{ nota }}
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
+<div class="accordion-item bg-transparent mt-2">
+  <h2 class="accordion-header">
+    <button class="accordion-button" type="button" @click="toggleAba('notas')">
+      Notas Olfativas
+    </button>
+  </h2>
+
+  <div :class="'accordion-collapse collapse ' + (abasAbertas.notas ? 'show' : '')">
+    <div class="accordion-body">
+      
+      <div v-for="nota in opcoesNotasAromaticas" :key="nota" class="form-check">
+        <input 
+          class="form-check-input"
+          type="checkbox"
+          :id="'nota-' + nota"
+          :value="nota"
+          v-model="notasSelecionadas"
+        >
+        <label class="form-check-label" :for="'nota-' + nota">
+          {{ nota }}
+        </label>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
       </div>
 
