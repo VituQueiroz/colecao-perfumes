@@ -186,6 +186,11 @@ h1,h2,h5,p,label { color:#fff; }
   background: rgba(255,255,255,0.08);
   border-color: rgba(255,255,255,0.8);
 }
+.obrigatorio {
+  color: red;
+  font-weight: bold;
+  margin-left: 3px;
+}
 
 </style>
 </head>
@@ -195,16 +200,18 @@ h1,h2,h5,p,label { color:#fff; }
 
 <nav class="navbar navbar-dark bg-dark mb-3 rounded shadow p-2">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#" @click="tela='grid'">
+    <a class="navbar-brand" href="#" @click.prevent="irParaLista">
       <i class="fa fa-th"></i> Lista
     </a>
-    <a class="navbar-brand" href="#" @click="tela='cadastro'">
+    
+    <a class="navbar-brand" href="#" @click.prevent="irParaCadastro">
       <i class="fa fa-plus"></i> Cadastro
     </a>
+    
   </div>
 </nav>
 
-<div id="app" class="container py-3">
+<div class="container py-3">
 
 <header class="text-center mb-3">
     <h1 style="font-size:1.6rem;">Minha Coleção de Perfumes</h1>
@@ -221,16 +228,25 @@ h1,h2,h5,p,label { color:#fff; }
 
       <h2 style="font-size:1.1rem;">{{ editIndex !== null ? "Editar Perfume" : "Cadastrar Perfume" }}</h2>
 
-      <input class="form-control mt-2" placeholder="Nome" v-model="nome">
-      <input class="form-control mt-2" placeholder="Marca" v-model="marca">
-      <input class="form-control mt-2" placeholder="Site fabricante" v-model="site">
+      <label class="mt-2">Nome <span class="obrigatorio">*</span></label>
+      <input class="form-control" placeholder="Nome" v-model="nome">
+
+      <label class="mt-2">Marca <span class="obrigatorio">*</span></label>
+      <input class="form-control" placeholder="Marca" v-model="marca">
+
+      <label class="mt-2">Site fabricante <span class="obrigatorio">*</span></label>
+      <input class="form-control" placeholder="Site fabricante" v-model="site">
+
 <!-- ÁREA DE UPLOAD -->
 <div class="upload-area mt-2"
      @dragover.prevent
      @drop.prevent="soltarImagem"
      @paste="colarImagem">
 
-  <p class="mb-1" style="font-size:0.8rem;">Arraste a imagem aqui, clique para escolher ou use CTRL+V</p>
+     <p class="mb-1" style="font-size:0.8rem;">
+      <span class="obrigatorio">*</span> Arraste a imagem aqui, clique para escolher ou use CTRL+V
+    </p>
+    
 
   <input type="file" accept="image/*" class="d-none" ref="fileInput" @change="carregarImagem">
   
@@ -254,9 +270,13 @@ h1,h2,h5,p,label { color:#fff; }
 
 
 
-      <input class="form-control mt-2" type="number" placeholder="Volume (ml)" v-model="volume">
-      <input class="form-control mt-2" type="number" placeholder="Ano" v-model="ano">
-      <input class="form-control mt-2" type="number" placeholder="Preço (R$)" v-model="preco">
+      <label class="mt-2">Volume (ml) <span class="obrigatorio">*</span></label>
+      <input class="form-control" type="number" placeholder="Volume (ml)" v-model="volume">
+
+      <input class="form-control mt-2" type="number" placeholder="Ano lançamento" v-model="ano">
+      <label class="mt-2">Preço (R$) <span class="obrigatorio">*</span></label>
+      <input class="form-control" type="number" placeholder="Preço (R$)" v-model="preco">
+
 
       <!-- ACCORDIONS -->
       <div class="accordion mt-3" id="accordionForm">
@@ -469,6 +489,9 @@ h1,h2,h5,p,label { color:#fff; }
 
 <script>
 new Vue({
+  beforeDestroy() {
+  window.removeEventListener("keydown", this.teclasForm);
+},
   el:"#app",
   data:{
     somenteFavoritos:false,
@@ -485,11 +508,27 @@ new Vue({
     sortBy:'none'
   },
   mounted(){
+    
     const save = localStorage.getItem("perfumes");
     if(save) this.listaPerfumes = JSON.parse(save);
+    window.addEventListener("keydown", this.teclasForm);
   },
   watch:{
-    listaPerfumes:{ deep:true, handler(v){ localStorage.setItem("perfumes", JSON.stringify(v)); } }
+    watch:{
+  listaPerfumes:{
+    deep:true,
+    handler(v){
+      localStorage.setItem("perfumes", JSON.stringify(v));
+    }
+  },
+
+  tela(newVal) {
+    if (newVal === 'grid') {
+      this.resetar();
+    }
+  }
+},
+
   },
   computed:{
     valorTotal(){ return this.listaFiltrada.reduce((t,p)=>t+parseFloat(p.preco||0),0); },
@@ -514,9 +553,7 @@ new Vue({
     },
     podeSalvar(){
       return this.nome && this.marca && this.imagem && this.volume &&
-             this.ano && this.preco && this.ocasiões.length &&
-             this.notasSelecionadas.length && this.tempo &&
-             this.estacao && this.site;
+             this.preco && this.site;
     },
     temAlgoNoFormulario() {
   return this.nome || this.marca || this.imagem || this.volume || this.ano ||
@@ -531,7 +568,25 @@ new Vue({
   methods:{
   
     toggleAba(a){ this.abasAbertas[a]=!this.abasAbertas[a]; },
+    teclasForm(e) {
+  // Só funciona se estiver no formulário
+  if (this.tela !== 'cadastro') return;
 
+  // ESC → cancelar e voltar para lista
+  if (e.key === "Escape") {
+    this.cancelarEdicao();
+    this.tela = "grid";
+  }
+
+  // ENTER → salvar, mas só se não estiver em um textarea ou accordion
+  if (e.key === "Enter") {
+    e.preventDefault(); // evita submit padrão
+
+    if (this.podeSalvar) {
+      this.cadastrarPerfume();
+    }
+  }
+},
 cadastrarPerfume() {
   let fav = false;
 
@@ -563,6 +618,15 @@ cadastrarPerfume() {
 
   this.resetar();
   this.tela = 'grid';
+},
+irParaLista() {
+  this.resetar();        // limpa antes
+  this.tela = 'grid';    // muda depois
+},
+
+irParaCadastro() {
+  this.resetar();        // sempre começa vazio
+  this.tela = 'cadastro';
 },
 
 abrirImportacao() {
