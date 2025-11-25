@@ -529,14 +529,45 @@ new Vue({
   },
   },
   computed:{
-    valorTotal(){ return this.listaFiltrada.reduce((t,p)=>t+parseFloat(p.preco||0),0); },
-    listaFiltrada(){
-      return this.listaPerfumes.filter(p=>{
-        const f=p.nome.toLowerCase().includes(this.filtroGeral.toLowerCase());
-        const m=p.marca && p.marca.toLowerCase().includes(this.filtroGeral.toLowerCase());
-        return (f||m) && (this.somenteFavoritos? p.favorito:true);
-      });
+    valorTotal(){ 
+      return this.listaFiltrada.reduce((t,p)=>t+parseFloat(p.preco||0),0); 
     },
+listaFiltrada() {
+  const termos = this.filtroGeral
+    .toLowerCase()
+    .split(" ")
+    .filter(t => t.trim() !== "");
+
+  let listaBase = this.listaPerfumes;
+
+  // 🔥 Se favoritos estiver ativado, filtra primeiro
+  if (this.somenteFavoritos) {
+    listaBase = listaBase.filter(p => p.favorito);
+  }
+
+  // 🔥 Se não digitou nada, retorna só os favoritos (ou todos)
+  if (termos.length === 0) {
+    return listaBase;
+  }
+
+  // 🔍 Busca inteligente (todas as palavras devem bater)
+  return listaBase.filter(perfume => {
+    const texto = `
+      ${perfume.nome}
+      ${perfume.marca}
+      ${perfume.preco}
+      ${perfume.volume}
+      ${perfume.ano}
+      ${perfume.tempo}
+      ${perfume.estacao}
+      ${perfume.extras}
+      ${perfume.ocasiões.join(" ")}
+      ${perfume.notasSelecionadas.join(" ")}
+    `.toLowerCase();
+
+    return termos.every(t => texto.includes(t));
+  });
+},
     listaFiltradaSorted(){
       const arr=this.listaFiltrada.slice();
       switch(this.sortBy){
