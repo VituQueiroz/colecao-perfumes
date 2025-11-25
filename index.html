@@ -208,6 +208,10 @@ h1,h2,h5,p,label { color:#fff; }
       <i class="fa fa-plus"></i> Cadastro
     </a>
     
+    <a class="navbar-brand" href="#" @click.prevent="irParaWishlist">
+    <i class="fa fa-star"></i> Lista de Desejos
+    </a>
+
   </div>
 </nav>
 
@@ -487,6 +491,107 @@ h1,h2,h5,p,label { color:#fff; }
 </div> <!-- row -->
 </div> <!-- container -->
 
+<!-- ============================= -->
+<!--     TELA LISTA DE DESEJOS     -->
+<!-- ============================= -->
+<div v-if="tela==='wishlist'" class="d-flex justify-content-center w-100">
+
+  <div class="col-12 col-md-3">
+    <div class="glass-box">
+
+      <h2 style="font-size:1.1rem;">Adicionar à Lista de Desejos</h2>
+
+      <label class="mt-2">Nome</label>
+      <input class="form-control" v-model="wish_nome">
+
+      <label class="mt-2">Marca</label>
+      <input class="form-control" v-model="wish_marca">
+
+      <label class="mt-2">Preço (R$)</label>
+      <input class="form-control" type="number" v-model="wish_preco">
+
+      <label class="mt-2">Link de Compra</label>
+      <input class="form-control" placeholder="https://..." v-model="wish_site">
+
+
+<!-- ÁREA DE UPLOAD (mesma do cadastro) -->
+<div class="upload-area mt-2"
+     @dragover.prevent
+     @drop.prevent="wish_soltarImagem"
+     @paste="wish_colarImagem">
+
+  <p class="mb-1" style="font-size:0.8rem;">
+    <span class="obrigatorio">*</span> Arraste a imagem aqui, clique para escolher ou use CTRL+V
+  </p>
+
+  <input type="file" accept="image/*" class="d-none" ref="wish_fileInput" @change="wish_carregarImagem">
+
+  <div class="upload-box" @click="$refs.wish_fileInput.click()">
+    <i class="fa fa-cloud-upload fa-2x mb-2"></i>
+    <p>Clique ou solte a imagem aqui</p>
+  </div>
+</div>
+
+<!-- Pré-visualização com ícone de remover -->
+<div v-if="wish_imagem" class="position-relative d-inline-block mt-2">
+  <img :src="wish_imagem" class="img-fluid rounded shadow" style="max-height:120px;">
+
+  <span @click="wish_imagem=''" 
+        style="position:absolute; top:0; right:0; background:rgba(0,0,0,0.6); 
+               border-radius:50%; padding:2px 6px; cursor:pointer; color:white;">
+    <i class="fas fa-times"></i>
+  </span>
+</div>
+
+
+      <button class="btn btn-primary w-100 mt-3" @click="wishAdicionar">
+        Adicionar
+      </button>
+
+    </div>
+  </div>
+
+  <!-- LISTA LATERAL -->
+  <div class="col-12 col-md-6">
+    <div class="glass-box">
+
+      <h4>Itens na Lista de Desejos</h4>
+
+      <div class="row row-cols-2 row-cols-md-3 g-3 mt-2">
+
+        <div class="col" v-for="(p,i) in wishlist" :key="i">
+          <div class="perfume-card text-center">
+
+            <img :src="p.imagem" class="perfume-img mb-2">
+            <h5>{{ p.nome }}</h5>
+            <p>{{ p.marca }}</p>
+            <p><strong>{{ p.preco | reais }}</strong></p>
+            <a v-if="p.site"
+              :href="p.site"
+              target="_blank"
+              class="btn btn-success btn-sm mb-1"
+              title="Comprar">
+              <i class="fas fa-shopping-cart"></i> Comprar
+            </a>
+
+            <button class="btn btn-success btn-sm mb-1" @click="wishMoverParaColecao(p)">
+              Mover para a Coleção
+            </button>
+
+            <button class="btn btn-danger btn-sm" @click="wishExcluir(p)">
+              Remover
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
 <script>
 new Vue({
   beforeDestroy() {
@@ -494,6 +599,7 @@ new Vue({
 },
   el:"#app",
   data:{
+    wish_site: '',
     somenteFavoritos:false,
     nome:'', marca:'', imagem:'', volume:'', ano:'', preco:'',
     ocasiões:[], tempo:'', estacao:'', notasSelecionadas:[],
@@ -505,10 +611,17 @@ new Vue({
     editIndex:null,
     tela: 'grid',
     notaTemp:0,
-    sortBy:'none'
+    sortBy:'none',
+    wishlist: [],
+    wish_nome: '',
+    wish_marca: '',
+    wish_preco: '',
+    wish_imagem: '',
   },
   mounted(){
-    
+    const saveWish = localStorage.getItem("wishlist");
+    if (saveWish) this.wishlist = JSON.parse(saveWish);
+
     const save = localStorage.getItem("perfumes");
     if(save) this.listaPerfumes = JSON.parse(save);
     window.addEventListener("keydown", this.teclasForm);
@@ -527,6 +640,12 @@ new Vue({
       this.resetar();
     }
   },
+wishlist:{
+  deep:true,
+  handler(v){
+    localStorage.setItem("wishlist", JSON.stringify(v));
+  }
+},
   },
   computed:{
     valorTotal(){ 
@@ -597,22 +716,41 @@ listaFiltrada() {
   methods:{
   
     toggleAba(a){ this.abasAbertas[a]=!this.abasAbertas[a]; },
-    teclasForm(e) {
-  // Só funciona se estiver no formulário
-  if (this.tela !== 'cadastro') return;
+teclasForm(e) {
+  // ========= CADASTRO =========
+  if (this.tela === 'cadastro') {
+    // ESC → cancelar e voltar para lista
+    if (e.key === "Escape") {
+      this.cancelarEdicao();
+      this.tela = "grid";
+    }
 
-  // ESC → cancelar e voltar para lista
-  if (e.key === "Escape") {
-    this.cancelarEdicao();
-    this.tela = "grid";
+    // ENTER → salvar
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (this.podeSalvar) {
+        this.cadastrarPerfume();
+      }
+    }
   }
 
-  // ENTER → salvar, mas só se não estiver em um textarea ou accordion
-  if (e.key === "Enter") {
-    e.preventDefault(); // evita submit padrão
+  // ========= WISHLIST =========
+  if (this.tela === 'wishlist') {
 
-    if (this.podeSalvar) {
-      this.cadastrarPerfume();
+    // ESC → limpar e voltar para grid
+    if (e.key === "Escape") {
+      this.wish_nome = '';
+      this.wish_marca = '';
+      this.wish_preco = '';
+      this.wish_imagem = '';
+      this.wish_site = '';
+      this.tela = 'grid';
+    }
+
+    // ENTER → adicionar à wishlist
+    if (e.key === "Enter") {
+      e.preventDefault();
+      this.wishAdicionar();
     }
   }
 },
@@ -833,9 +971,103 @@ badgeColorNota(n){
     "Aquático / Marinho":"cyan","Aromático":"green",
     "Frutado":"purple","Herbal":"darkgreen"
   }[n] || "secondary";
-}
-
+},
+irParaWishlist() {
+  this.tela = 'wishlist';
+},
+wish_carregarImagem(e){
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = r => this.wish_imagem = r.target.result;
+  reader.readAsDataURL(file);
+},
+wishAdicionar(){
+  if(!this.wish_nome || !this.wish_marca || !this.wish_preco || !this.wish_imagem){
+    alert("Preencha todos os campos!");
+    return;
   }
+
+this.wishlist.push({
+  nome: this.wish_nome,
+  marca: this.wish_marca,
+  preco: this.wish_preco,
+  imagem: this.wish_imagem,
+  site: this.wish_site
+});
+
+  this.wish_site = '';
+  this.wish_nome = '';
+  this.wish_marca = '';
+  this.wish_preco = '';
+  this.wish_imagem = '';
+},
+wishMoverParaColecao(p){
+
+  if (!confirm("Deseja mover este perfume para a sua coleção?")) {
+    return;
+  }
+
+  this.listaPerfumes.push({
+    nome: p.nome,
+    marca: p.marca,
+    preco: p.preco,
+    imagem: p.imagem,
+    volume: '',
+    ano: '',
+    site: p.site || '',
+    ocasiões: [],
+    tempo: '',
+    estacao: '',
+    notasSelecionadas: [],
+    extras: '',
+    nota: 0,
+    favorito: false,
+    expandido: false
+  });
+
+  this.wishExcluir(p, false);
+
+  alert("Movido para a coleção!");
+},
+wishExcluir(p, confirmar = true) {
+  if (confirmar && !confirm("Tem certeza que deseja remover este perfume da lista de desejos?")) {
+    return;
+  }
+
+  const i = this.wishlist.indexOf(p);
+  this.wishlist.splice(i, 1);
+},
+// ====== WISHLIST — Upload de imagem igual ao formulário ======
+wish_carregarImagem(event) {
+  const file = event.target.files[0];
+  if (file) this.wish_lerArquivo(file);
+},
+
+wish_soltarImagem(event) {
+  const file = event.dataTransfer.files[0];
+  if (file) this.wish_lerArquivo(file);
+},
+
+wish_colarImagem(event) {
+  const items = event.clipboardData.items;
+
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.includes("image")) {
+      const file = items[i].getAsFile();
+      this.wish_lerArquivo(file);
+      break;
+    }
+  }
+},
+
+wish_lerArquivo(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    this.wish_imagem = e.target.result; // Base64
+  };
+  reader.readAsDataURL(file);
+},
+}
 });
 </script>
 
