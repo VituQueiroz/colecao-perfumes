@@ -191,6 +191,12 @@ h1,h2,h5,p,label { color:#fff; }
   font-weight: bold;
   margin-left: 3px;
 }
+@media(max-width: 576px){
+  .glass-box {
+      margin-left: 10px;
+      margin-right: 10px;
+  }
+}
 
 </style>
 </head>
@@ -377,11 +383,11 @@ h1,h2,h5,p,label { color:#fff; }
       </button>
 
 
-      <button class="btn btn-success w-100 mt-2" @click="exportarJSON">
+      <button class="btn btn-success w-100 mt-2" @click="exportarColecaoCompleta">
         Exportar Coleção
       </button>
 
-      <input type="file" id="importarArquivo" style="display:none" @change="importarJSON">
+      <input type="file" id="importarArquivo" style="display:none" @change="importarColecaoCompleta">
 
       <button class="btn btn-warning w-100 mt-2" @click="abrirImportacao">
         Importar Coleção
@@ -489,12 +495,12 @@ h1,h2,h5,p,label { color:#fff; }
 </div>
 
 </div> <!-- row -->
-</div> <!-- container -->
+
 
 <!-- ============================= -->
 <!--     TELA LISTA DE DESEJOS     -->
 <!-- ============================= -->
-<div v-if="tela==='wishlist'" class="d-flex justify-content-center w-100">
+<div v-if="tela==='wishlist'" class="row justify-content-center w-100">
 
   <div class="col-12 col-md-3">
     <div class="glass-box">
@@ -591,7 +597,7 @@ h1,h2,h5,p,label { color:#fff; }
   </div>
 
 </div>
-
+</div> <!-- container -->
 <script>
 new Vue({
   beforeDestroy() {
@@ -918,50 +924,67 @@ badgeColorOc(o){
   }[o] || "secondary";
 },
 
-exportarJSON() {
+exportarColecaoCompleta() {
 
-  if (!confirm("Deseja realmente exportar toda a coleção de perfumes?")) {
-    return;
-  }
+    if (!confirm("Deseja realmente exportar toda a coleção e lista de desejos?")) {
+        return;
+    }
 
-  const data = JSON.stringify(this.listaPerfumes, null, 2);
-  const blob = new Blob([data], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
+    const dados = {
+        colecao: this.listaPerfumes,
+        wishlist: this.wishlist
+    };
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "colecao_perfumes.json";
-  a.click();
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
 
-  URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "colecao_completa.json";
+    a.click();
 
-  alert("Coleção exportada com sucesso!");
+    URL.revokeObjectURL(url);
+
+    alert("Coleção exportada com sucesso!");
 },
 
+importarColecaoCompleta(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-importarJSON(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+    const reader = new FileReader();
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const novaLista = JSON.parse(e.target.result);
+    reader.onload = (e) => {
+        try {
+            const dados = JSON.parse(e.target.result);
 
-      if (!Array.isArray(novaLista)) {
-        alert("Arquivo inválido!");
-        return;
-      }
+            const colecaoImportada = dados.colecao || [];
+            const wishlistImportada = dados.wishlist || [];
 
-      this.listaPerfumes.push(...novaLista);
-      alert("Perfumes importados com sucesso!");
+            this.mesclarPerfumes(colecaoImportada, "listaPerfumes");
+            this.mesclarPerfumes(wishlistImportada, "wishlist");
 
-    } catch (erro) {
-      alert("Erro ao importar arquivo JSON.");
-    }
-  };
+            alert("Coleção importada com sucesso!");
 
-  reader.readAsText(file);
+        } catch (erro) {
+            alert("Erro ao importar arquivo.");
+        }
+    };
+
+    reader.readAsText(file);
+},
+
+mesclarPerfumes(lista, destino) {
+    lista.forEach(p => {
+        const existe = this[destino].some(x =>
+            x.nome.toLowerCase() === p.nome.toLowerCase() &&
+            x.marca.toLowerCase() === p.marca.toLowerCase()
+        );
+
+        if (!existe) {
+            this[destino].push(p);
+        }
+    });
 },
 
 badgeColorNota(n){
