@@ -1,0 +1,182 @@
+/* ===== FUNDO OTIMIZADO PARA CELULAR ===== */
+body { 
+    font-family: "Poppins", sans-serif; 
+    background: url("https://images.unsplash.com/photo-1485470733090-0aae1788d5af?fm=jpg&q=60&w=1500") no-repeat center center;
+    background-size: cover; 
+    background-attachment: scroll;
+    backdrop-filter: blur(2px); 
+    color:#fff;
+}
+
+/* ===== TEXTOS ===== */
+h1,h2,h5,p,label { color:#fff; }
+
+/* ===== CONTAINER GLASS ===== */
+.glass-box { 
+    background: rgba(0,0,0,0.35); 
+    border: 1px solid rgba(255,255,255,0.15); 
+    border-radius: 16px; 
+    padding: 12px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.5); 
+    backdrop-filter: blur(10px); 
+}
+
+/* ===== FORM ===== */
+.form-control { 
+    border: 1px solid #666 !important; 
+    background-color: rgba(0,0,0,0.3); 
+    color: #fff; 
+    font-size: 0.85rem;
+    padding: 6px 10px;
+}
+.form-control:focus { 
+    border-color: #aaa !important; 
+    box-shadow: 0 0 0 0.2rem rgba(200,200,200,0.2); 
+}
+
+/* ===== ACCORDION ===== */
+.accordion-button { 
+    background: rgba(0,0,0,0.3) !important; 
+    color: #fff !important; 
+    border: none !important; 
+    font-size: 0.85rem;
+}
+.accordion-body { 
+    background: rgba(0,0,0,0.2); 
+    border-radius: 10px; 
+    padding: 8px 12px; 
+    font-size: 0.75rem;
+}
+
+/* ===== CARDS ===== */
+.card-wrap { perspective: 1000px; position: relative; }
+
+.perfume-card { 
+    background: rgba(0,0,0,0.25); 
+    border: 1px solid rgba(255,255,255,0.2); 
+    border-radius: 14px; 
+    padding: 10px; 
+    backdrop-filter: blur(6px); 
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .3s ease, background .3s ease; 
+    transform-origin: center;
+    position: relative; 
+    font-size: 0.8rem;
+}
+
+@media (hover:hover) {
+    .perfume-card:hover { 
+        transform: translateY(-4px); 
+        box-shadow: 0 10px 35px rgba(0,0,0,0.65); 
+    }
+}
+
+.perfume-img { 
+    width: 80px; 
+    height: 80px; 
+    object-fit: cover; 
+    border-radius: 12px; 
+    border: 2px solid #fff; 
+    transition: transform .3s ease; 
+}
+
+@media (hover:hover) {
+    .perfume-card:hover .perfume-img { transform: scale(1.05); }
+}
+
+/* ===== FAVORITO ===== */
+.favorite { 
+    position: absolute; 
+    top: 8px; right: 8px; 
+    font-size: 1.4rem; 
+    cursor: pointer; 
+    z-index: 2;
+}
+.favorite:hover { transform: scale(1.15); }
+.favorite i.far { color: white; }
+.favorite i.fas { color: red; }
+.favorite:not(.favorito) i.far:hover { color: red !important; }
+
+/* ===== EXPANDIR ===== */
+.collapse-content { display: none; margin-top: 6px; }
+.collapse-content.show { display: block; }
+
+/* ===== BOTÕES ===== */
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+.button-row .btn {
+    flex: 1 1 calc(50% - 6px);
+    white-space: nowrap;
+}
+
+/* BADGES */
+.badge-oc, .badge-nota {
+    margin-right: 3px;
+    margin-bottom: 3px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.65rem;
+}
+.badge-cat {
+    margin-right: 3px;
+    margin-bottom: 3px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.65rem;
+    white-space: normal; /* permite quebra de linha */
+    display: inline-block; /* mantém o estilo de badge */
+}
+
+
+/* CORES */
+.bg-brown { background:#8d6e63 !important; color:white !important; }
+.bg-yellow { background:#f7d700 !important; color:black !important; }
+.bg-pink { background:#ff4fa3 !important; color:white !important; }
+.bg-skyblue { background:#5bc0de !important; color:black !important; }
+.bg-red { background:#dc3545 !important; }
+.bg-orange { background:#fd7e14 !important; }
+.bg-cyan { background:#0dcaf0 !important; color:black !important; }
+.bg-green { background:#198754 !important; }
+.bg-purple { background:#6f42c1 !important; }
+.bg-darkgreen { background:#14532d !important; }
+
+/* ===== ESTRELAS ===== */
+.star { cursor: pointer; font-size: 1rem; }
+.star.fas { color: #ffc107 !important; }
+.star.far { color: #6c757d !important; }
+
+@media (hover:hover) {
+    .star:hover { transform: scale(1.15); transition: 0.2s; }
+}
+.upload-area {
+  text-align: center;
+  color: #fff;
+}
+
+.upload-box {
+  padding: 20px;
+  border: 2px dashed rgba(255,255,255,0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.upload-box:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.8);
+}
+.obrigatorio {
+  color: red;
+  font-weight: bold;
+  margin-left: 3px;
+}
+@media(max-width: 576px){
+  .glass-box {
+      margin-left: 10px;
+      margin-right: 10px;
+  }
+}
