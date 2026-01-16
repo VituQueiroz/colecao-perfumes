@@ -4,6 +4,7 @@ new Vue({
 },
   el:"#app",
   data:{
+    wish_editIndex: null,
     wish_site: '',
     somenteFavoritos:false,
     nome:'', marca:'', imagem:'', volume:'', ano:'', preco:'',
@@ -119,6 +120,18 @@ listaFiltrada() {
     reais(v){ return "R$ "+parseFloat(v).toFixed(2).replace(".",","); }
   },
   methods:{
+    wishEditar(p) {
+  const index = this.wishlist.indexOf(p);
+
+  this.wish_nome = p.nome;
+  this.wish_marca = p.marca;
+  this.wish_preco = p.preco;
+  this.wish_imagem = p.imagem;
+  this.wish_site = p.site || '';
+
+  this.wish_editIndex = index;
+},
+
   
     toggleAba(a){ this.abasAbertas[a]=!this.abasAbertas[a]; },
 teclasForm(e) {
@@ -409,20 +422,28 @@ wishAdicionar(){
     return;
   }
 
-this.wishlist.push({
-  nome: this.wish_nome,
-  marca: this.wish_marca,
-  preco: this.wish_preco,
-  imagem: this.wish_imagem,
-  site: this.wish_site
-});
+  const perfume = {
+    nome: this.wish_nome,
+    marca: this.wish_marca,
+    preco: this.wish_preco,
+    imagem: this.wish_imagem,
+    site: this.wish_site
+  };
 
-  this.wish_site = '';
+  if (this.wish_editIndex !== null) {
+    Vue.set(this.wishlist, this.wish_editIndex, perfume);
+  } else {
+    this.wishlist.push(perfume);
+  }
+
   this.wish_nome = '';
   this.wish_marca = '';
   this.wish_preco = '';
   this.wish_imagem = '';
+  this.wish_site = '';
+  this.wish_editIndex = null;
 },
+
 wishMoverParaColecao(p){
 
   if (!confirm("Deseja mover este perfume para a sua coleção?")) {

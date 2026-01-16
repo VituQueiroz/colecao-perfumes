@@ -365,9 +365,10 @@
 </div>
 
 
-      <button class="btn btn-primary w-100 mt-3" @click="wishAdicionar">
-        Adicionar
-      </button>
+    <button class="btn btn-primary w-100 mt-3" @click="wishAdicionar">
+      {{ wish_editIndex !== null ? 'Salvar Alterações' : 'Adicionar' }}
+    </button>
+
 
     </div>
   </div>
@@ -394,6 +395,9 @@
               title="Comprar">
               <i class="fas fa-shopping-cart"></i> Comprar
             </a>
+            <button class="btn btn-info btn-sm mb-1" @click="wishEditar(p)">
+              Editar
+            </button>
 
             <button class="btn btn-success btn-sm mb-1" @click="wishMoverParaColecao(p)">
               Mover para a Coleção
