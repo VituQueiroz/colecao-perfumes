@@ -57,8 +57,15 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('perfumes', 'perfumes', true, 2097152, array['image/webp', 'image/jpeg', 'image/png'])
 on conflict (id) do nothing;
 
+drop policy if exists "perfumes: ver a propria pasta"     on storage.objects;
 drop policy if exists "perfumes: enviar na propria pasta" on storage.objects;
 drop policy if exists "perfumes: apagar da propria pasta" on storage.objects;
+
+-- Necessária para apagar: o Storage só remove arquivos que o usuário consegue "ver".
+-- (A exibição das imagens no site não depende disso, pois o bucket é público.)
+create policy "perfumes: ver a propria pasta" on storage.objects
+  for select to authenticated
+  using (bucket_id = 'perfumes' and (storage.foldername(name))[1] = (select auth.uid())::text);
 
 create policy "perfumes: enviar na propria pasta" on storage.objects
   for insert to authenticated
