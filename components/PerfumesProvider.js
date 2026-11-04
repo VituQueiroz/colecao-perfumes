@@ -131,10 +131,18 @@ export function PerfumesProvider({ children }) {
       <div className="container py-5">
         <div className="glass-box mx-auto" style={{ maxWidth: 520 }}>
           <h2 style={{ fontSize: '1.1rem' }}>Supabase não configurado</h2>
-          <p className="mb-0">
-            Crie o arquivo <code>.env.local</code> a partir do <code>.env.example</code> com a URL e a chave do seu
-            projeto Supabase e reinicie o servidor.
+          <p>
+            Faltam as variáveis <code>NEXT_PUBLIC_SUPABASE_URL</code> e <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
           </p>
+          <ul className="mb-0" style={{ fontSize: '0.9rem' }}>
+            <li>
+              <strong>Na Vercel:</strong> cadastre-as em Settings → Environment Variables e faça um novo deploy.
+            </li>
+            <li>
+              <strong>No computador:</strong> crie o <code>.env.local</code> a partir do <code>.env.example</code> e
+              reinicie o servidor.
+            </li>
+          </ul>
         </div>
       </div>
     );
