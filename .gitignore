@@ -1,0 +1,21 @@
+# dependências
+node_modules/
+
+# build do Next.js
+.next/
+out/
+
+# variáveis de ambiente (chaves do Supabase ficam aqui, nunca no Git)
+.env*.local
+.env
+
+# Vercel
+.vercel
+
+# sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# configuração local do Claude
+.claude/launch.json
