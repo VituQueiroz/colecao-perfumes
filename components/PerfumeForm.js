@@ -52,6 +52,7 @@ export default function PerfumeForm({ inicial }) {
   const router = useRouter();
   const { salvar } = usePerfumes();
   const [form, setForm] = useState(inicial ? { ...VAZIO, ...inicial } : VAZIO);
+  const [salvando, setSalvando] = useState(false);
   const editando = !!inicial;
 
   const campo = (nome) => (e) => setForm({ ...form, [nome]: e.target.value });
@@ -73,9 +74,14 @@ export default function PerfumeForm({ inicial }) {
   // ENTER dentro do formulário dispara o submit automaticamente
   const enviar = async (e) => {
     e.preventDefault();
-    if (!podeSalvar) return;
-    await salvar({ ...inicial, ...form, status: inicial?.status || 'colecao' });
-    router.push('/');
+    if (!podeSalvar || salvando) return;
+    setSalvando(true);
+    try {
+      await salvar({ ...inicial, ...form, status: inicial?.status || 'colecao' });
+      router.push('/');
+    } catch {
+      setSalvando(false); // o erro já foi mostrado ao usuário
+    }
   };
 
   return (
@@ -132,8 +138,8 @@ export default function PerfumeForm({ inicial }) {
           <h5 className="mt-3">Extras</h5>
           <input className="form-control" value={form.extras} onChange={campo('extras')} />
 
-          <button type="submit" className="btn btn-primary w-100 mt-3" disabled={!podeSalvar}>
-            {editando ? 'Salvar Alterações' : 'Cadastrar Perfume'}
+          <button type="submit" className="btn btn-primary w-100 mt-3" disabled={!podeSalvar || salvando}>
+            {salvando ? 'Salvando...' : editando ? 'Salvar Alterações' : 'Cadastrar Perfume'}
           </button>
 
           {temAlgo && (

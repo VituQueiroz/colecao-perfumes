@@ -33,6 +33,7 @@ export default function ColecaoPage() {
   const [ordem, setOrdem] = useState('none');
   const [somenteFavoritos, setSomenteFavoritos] = useState(false);
   const [expandidoId, setExpandidoId] = useState(null);
+  const [importando, setImportando] = useState(false);
   const importarRef = useRef(null);
 
   const filtrados = useMemo(() => {
@@ -62,21 +63,33 @@ export default function ColecaoPage() {
     const arquivo = e.target.files[0];
     e.target.value = '';
     if (!arquivo) return;
+    let dados;
     try {
-      const qtd = await perfumes.importar(JSON.parse(await arquivo.text()));
+      dados = JSON.parse(await arquivo.text());
+    } catch {
+      alert('Arquivo inválido: não é um JSON.');
+      return;
+    }
+    setImportando(true);
+    try {
+      const qtd = await perfumes.importar(dados);
       alert(`Importação concluída: ${qtd} perfume(s) adicionado(s).`);
     } catch {
-      alert('Erro ao importar arquivo.');
+      // o erro já foi mostrado ao usuário
+    } finally {
+      setImportando(false);
     }
   };
 
   const duplicar = async (id) => {
-    const copia = await perfumes.duplicar(id);
-    router.push(`/editar/${copia.id}`);
+    try {
+      const copia = await perfumes.duplicar(id);
+      router.push(`/editar/${copia.id}`);
+    } catch {}
   };
 
   const excluir = (id) => {
-    if (confirm('Tem certeza que deseja excluir este perfume?')) perfumes.excluir(id);
+    if (confirm('Tem certeza que deseja excluir este perfume?')) perfumes.excluir(id).catch(() => {});
   };
 
   return (
@@ -119,8 +132,13 @@ export default function ColecaoPage() {
               <button className="btn btn-outline-light btn-sm" onClick={exportar}>
                 <i className="fa-solid fa-download"></i> Exportar
               </button>
-              <button className="btn btn-outline-light btn-sm" onClick={() => importarRef.current.click()}>
-                <i className="fa-solid fa-upload"></i> Importar
+              <button
+                className="btn btn-outline-light btn-sm"
+                disabled={importando}
+                onClick={() => importarRef.current.click()}
+              >
+                <i className={`fa-solid ${importando ? 'fa-spinner fa-spin' : 'fa-upload'}`}></i>{' '}
+                {importando ? 'Importando...' : 'Importar'}
               </button>
               <input ref={importarRef} type="file" accept=".json,application/json" className="d-none" onChange={importar} />
             </div>
@@ -141,8 +159,8 @@ export default function ColecaoPage() {
                   perfume={p}
                   expandido={expandidoId === p.id}
                   onExpandir={() => setExpandidoId(expandidoId === p.id ? null : p.id)}
-                  onFavorito={() => perfumes.alternarFavorito(p.id)}
-                  onNota={(n) => perfumes.definirNota(p.id, n)}
+                  onFavorito={() => perfumes.alternarFavorito(p.id).catch(() => {})}
+                  onNota={(n) => perfumes.definirNota(p.id, n).catch(() => {})}
                   onDuplicar={() => duplicar(p.id)}
                   onExcluir={() => excluir(p.id)}
                   onEditar={() => router.push(`/editar/${p.id}`)}

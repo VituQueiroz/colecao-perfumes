@@ -4,6 +4,8 @@ body {
     background: url("https://images.unsplash.com/photo-1485470733090-0aae1788d5af?fm=jpg&q=60&w=1500") no-repeat center center;
     background-size: cover; 
     background-attachment: scroll;
+    background-color: #1b2a33;
+    min-height: 100vh;
     backdrop-filter: blur(2px); 
     color:#fff;
 }

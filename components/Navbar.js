@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { usePerfumes } from './PerfumesProvider';
 
 const LINKS = [
   { href: '/', icone: 'fa-table-cells', texto: 'Lista' },
@@ -11,6 +12,7 @@ const LINKS = [
 
 export default function Navbar() {
   const caminho = usePathname();
+  const { usuario, sair } = usePerfumes();
 
   return (
     <nav className="navbar navbar-dark bg-dark mb-3 rounded shadow p-2">
@@ -24,6 +26,15 @@ export default function Navbar() {
             <i className={`fa-solid ${l.icone}`}></i> {l.texto}
           </Link>
         ))}
+
+        <div className="d-flex align-items-center gap-2 ms-auto">
+          <span className="text-secondary d-none d-md-inline" style={{ fontSize: '0.8rem' }}>
+            {usuario.email}
+          </span>
+          <button className="btn btn-outline-light btn-sm" onClick={sair} title="Sair">
+            <i className="fa-solid fa-right-from-bracket"></i> Sair
+          </button>
+        </div>
       </div>
     </nav>
   );

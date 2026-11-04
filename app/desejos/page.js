@@ -13,6 +13,7 @@ export default function DesejosPage() {
   const { carregado, desejos, buscar, salvar, excluir, moverParaColecao } = usePerfumes();
   const [form, setForm] = useState(VAZIO);
   const [editId, setEditId] = useState(null);
+  const [salvando, setSalvando] = useState(false);
 
   const campo = (nome) => (e) => setForm({ ...form, [nome]: e.target.value });
 
@@ -35,8 +36,15 @@ export default function DesejosPage() {
       return;
     }
     const original = editId ? buscar(editId) : {};
-    await salvar({ ...original, ...form, status: 'desejo' });
-    limpar();
+    setSalvando(true);
+    try {
+      await salvar({ ...original, ...form, status: 'desejo' });
+      limpar();
+    } catch {
+      // o erro já foi mostrado ao usuário
+    } finally {
+      setSalvando(false);
+    }
   };
 
   const editar = (p) => {
@@ -46,15 +54,19 @@ export default function DesejosPage() {
 
   const mover = async (id) => {
     if (!confirm('Deseja mover este perfume para a sua coleção?')) return;
-    await moverParaColecao(id);
-    if (id === editId) limpar();
-    alert('Movido para a coleção!');
+    try {
+      await moverParaColecao(id);
+      if (id === editId) limpar();
+      alert('Movido para a coleção!');
+    } catch {}
   };
 
   const remover = async (id) => {
     if (!confirm('Tem certeza que deseja remover este perfume da lista de desejos?')) return;
-    await excluir(id);
-    if (id === editId) limpar();
+    try {
+      await excluir(id);
+      if (id === editId) limpar();
+    } catch {}
   };
 
   return (
@@ -79,8 +91,8 @@ export default function DesejosPage() {
 
           <UploadImagem valor={form.imagem_url} onChange={(v) => setForm({ ...form, imagem_url: v })} />
 
-          <button type="submit" className="btn btn-primary w-100 mt-3">
-            {editId ? 'Salvar Alterações' : 'Adicionar'}
+          <button type="submit" className="btn btn-primary w-100 mt-3" disabled={salvando}>
+            {salvando ? 'Salvando...' : editId ? 'Salvar Alterações' : 'Adicionar'}
           </button>
           {editId && (
             <button type="button" className="btn btn-secondary w-100 mt-2" onClick={limpar}>
